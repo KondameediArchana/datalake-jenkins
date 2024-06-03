@@ -1,0 +1,54 @@
+{
+    "connector_name": "nifi_mongo_to_minio",
+    "source": {
+        "type": "mongo",
+        "config": {
+            "host": "mongodb://64.227.153.102",
+            "port": 27017,
+            "chunk_size": 1000,
+            "db_name": "touprd",
+            "multi_collection_names": "c011",
+            "store_key": "test-store-key-1012" 
+            
+        }
+    },
+    "destination": {
+        "type": "minio",
+        "config": {
+            "endpoint": "http://192.168.63.128:9000",
+            "access_key": "sNXJX0O8ZS4aSMCHriHw",
+            "secret_key": "94ZCWB2N160hsMNIjgNzaRy43HPVcZA9VY7aQZ13",
+            "bucket_name": "raw"
+        }
+    },
+    "trino": {
+        "data_schema":[
+                    "id ROW(oid VARCHAR)",
+                    "p1 VARCHAR",
+                    "p6 VARCHAR",
+                    "p8 VARCHAR",
+                    "p11 VARCHAR",
+                    "p12 VARCHAR",
+                    "p13 VARCHAR",
+                    "p15 VARCHAR",
+                    "p16 VARCHAR",
+                    "p17 VARCHAR",
+                    "p18 VARCHAR",
+                    "p10 VARCHAR",
+                    "AP VARCHAR",
+                    "updatedDate ROW(date VARCHAR)",
+                    "version VARCHAR",
+                    "encryptionOn VARCHAR",
+                    "encryptionIndex VARCHAR",
+                    "_class VARCHAR"
+                ],
+        "t_schema": "details",
+        "table_name": "details_table15",
+        "host": "192.168.63.128",
+        "port": "8085",
+        "username": "admin",
+        "catalog": "minio",
+        "file_format":"json"
+    }
+ 
+}
