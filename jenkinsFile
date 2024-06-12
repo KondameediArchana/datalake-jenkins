@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        // Set up any necessary environment variables
+        APP_DIR = 'datalake-jenkins'
+        PIP_PATH = 'C:\\Users\\archana.kondameedhi\\AppData\\Local\\Microsoft\\WindowsApps\\pip.exe' 
+        GIT_CREDENTIALS = credentials('giteasecret')
+        DOCKER_USERNAME = credentials('jfrogusername')
+        DOCKER_PASSWORD = credentials('jfrogpassword')
+    
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                
+                git credentialsId: "giteakey", url: 'git@192.168.61.88:Toucan_Payments_India/DataLake.git'
+
+            }
+        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             // Change to the directory containing the Dockerfile
+//                         dir('api-server') {          
+        //                 // Build the Docker image
+        //                 def dockerImage = docker.build("api_server_dockerimage")
+        //             }
+        //         }
+        //     }
+        // }
+        stage('login to jfrog registry') {
+            steps {
+                script {
+                        bat 'docker login --username=admin --password=Dev@p$123 artifacts.toucanint.com'
+                }
+            }
+        }
+        stage('Build image to jfrog') {
+            steps {
+                script {
+                    dir('api-server') {
+                        bat 'docker build -t artifacts.toucanint.com/apiserver_image/server_image:latest .'
+                        bat 'docker push artifacts.toucanint.com/apiserver_image/server_image:latest '
+                        bat 'docker rmi -f artifacts.toucanint.com/apiserver_image/server_image:latest || true'
+                    }
+                }
+            }
+        }
+    } 
+}
