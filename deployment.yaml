@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: apiserver
+  namespace: apiserver
 spec:
   replicas: 1
   selector:
@@ -13,26 +14,24 @@ spec:
         app: apiserver
     spec:
       containers:
-      - name: apiserver-container
-        image: artifacts.toucanint.com/datalake/server_image:latest
-        ports:
-        - containerPort: 8000
-        imagePullPolicy: Always
+        - name: apiserver-container
+          image: artifacts.toucanint.com/datalake/server_image:latest
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
       imagePullSecrets:
-      - name: jfrog-secret
-      
+        - name: jfrog-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: apiserver-service
+  namespace: apiserver
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: apiserver
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8000
-  resources:
-  
