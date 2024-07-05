@@ -8,6 +8,7 @@ pipeline {
         GIT_CREDENTIALS = credentials('giteasecret')
         DOCKER_USERNAME = credentials('jfrogusername')
         DOCKER_PASSWORD = credentials('jfrogpassword')
+        SCANNER_HOME = tool 'sonarscanner'
     
     }
 
@@ -19,21 +20,10 @@ pipeline {
 
             }
         }
-        // stage('Build Docker Image') {
-        //     steps {
-        //         script {
-        //             // Change to the directory containing the Dockerfile
-//                         dir('api-server') {          
-        //                 // Build the Docker image
-        //                 def dockerImage = docker.build("api_server_dockerimage")
-        //             }
-        //         }
-        //     }
-        // }
         stage('login to jfrog registry') {
             steps {
                 script {
-                        bat 'docker login --username=admin --password=Dev@p$123 artifacts.toucanint.com'
+                    bat 'docker login --username=admin --password=Dev@p$123 artifacts.toucanint.com'
                 }
             }
         }
@@ -41,12 +31,20 @@ pipeline {
             steps {
                 script {
                     dir('api-server') {
-                        bat 'docker build -t artifacts.toucanint.com/apiserver_image/server_image:latest .'
-                        bat 'docker push artifacts.toucanint.com/apiserver_image/server_image:latest '
-                        bat 'docker rmi -f artifacts.toucanint.com/apiserver_image/server_image:latest || true'
+                        bat 'docker build -t artifacts.toucanint.com/datalake/server_image:latest .'
+                        bat 'docker push artifacts.toucanint.com/datalake/server_image:latest '
+                        bat 'docker rmi -f artifacts.toucanint.com/datalake/server_image:latest || true'
                     }
                 }
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    bat "${env.SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=datalake -Dsonar.sources=."
+                }
+            }
+        }
+
     } 
 }
