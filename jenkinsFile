@@ -20,6 +20,8 @@ pipeline {
 
             }
         }
+
+       
         stage('login to jfrog registry') {
             steps {
                 script {
@@ -31,20 +33,32 @@ pipeline {
             steps {
                 script {
                     dir('api-server') {
-                        bat 'docker build -t artifacts.toucanint.com/datalake/server_image:latest .'
-                        bat 'docker push artifacts.toucanint.com/datalake/server_image:latest '
-                        bat 'docker rmi -f artifacts.toucanint.com/datalake/server_image:latest || true'
+                        bat 'docker build -t artifacts.toucanint.com/datalake/apiserver_image:latest .'
+                        bat 'docker push artifacts.toucanint.com/datalake/apiserver_image:latest '
+                        bat 'docker rmi -f artifacts.toucanint.com/datalake/apiserver_image:latest || true'
                     }
                 }
             }
         }
-        stage('SonarQube Analysis') {
+        stage('Run Test Cases') {
             steps {
-                withSonarQubeEnv('sonar') {
-                    bat "${env.SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=datalake -Dsonar.sources=."
+                script {
+                    dir('api-server') {
+                        // Ensure you have pytest installed
+                        bat 'C:\\Users\\archana.kondameedhi\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pip.exe install pytest'
+                        
+                        // Run pytest and generate a report
+                        bat 'C:\\Users\\archana.kondameedhi\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pytest.exe --maxfail=1 --disable-warnings -q --junitxml=test-results/results.xml'
+                    }
                 }
             }
         }
-
+        stage('Test Cases') {
+            steps {
+                script {
+                    bat 'pytest tests/'
+                }
+            }
+        }
     } 
 }
